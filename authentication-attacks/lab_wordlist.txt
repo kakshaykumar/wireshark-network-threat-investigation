@@ -1,4 +1,4 @@
-admin123
+admin
 password
 123456
 welcome
@@ -8,5 +8,5 @@ labpass123
 labuser
 test123
 password123
-admin
+admin123
 adminpass123
