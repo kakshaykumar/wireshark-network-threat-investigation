@@ -39,6 +39,7 @@ No exact OS matches — TCP/IP fingerprint generated
 Network Distance: 1 hop
 Duration: 25.68 seconds
 ```
+*Full terminal output: [`nmap-terminal-output.txt`](nmap-terminal-output.txt)*
 
 ---
 
