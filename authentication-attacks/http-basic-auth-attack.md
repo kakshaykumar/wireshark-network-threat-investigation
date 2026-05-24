@@ -57,13 +57,13 @@ All 12 authorization attempts decoded:
 | YWRtaW46MTIzNDU2 | admin:123456 | 401 |
 | YWRtaW46d2VsY29tZQ== | admin:welcome | 401 |
 | YWRtaW46bGV0bWVpbg== | admin:letmein | 401 |
-| YWRtaW46cGFzc3dvcmQxMjM= | admin:qwerty | 401 |
-| YWRtaW46YWRtaW5wYXNzMTIz | admin:labpass123 | 401 |
-| YWRtaW46dGVzdDEyMw== | admin:labuser | 401 |
-| YWRtaW46cXdlcnR5 | admin:test123 | 401 |
+| YWRtaW46cXdlcnR5 | admin:qwerty | 401 |
+| YWRtaW46bGFicGFzczEyMw== | admin:labpass123 | 401 |
+| YWRtaW46bGFidXNlcg== | admin:labuser | 401 |
+| YWRtaW46dGVzdDEyMw== | admin:test123 | 401 |
 | YWRtaW46cGFzc3dvcmQxMjM= | admin:password123 | 401 |
-| YWRtaW46bGFicGFzczEyMw== | admin:admin123 | 401 |
-| YWRtaW46bGFidXNlcg== | admin:adminpass123 | 401 |
+| YWRtaW46YWRtaW4xMjM= | admin:admin123 | 401 |
+| YWRtaW46YWRtaW5wYXNzMTIz | admin:adminpass123 | 401 |
 
 Successful credential: `admin:admin` — password equals username, cracked on the first attempt.
 
