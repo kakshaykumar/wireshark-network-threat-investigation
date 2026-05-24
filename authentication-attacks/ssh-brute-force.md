@@ -35,7 +35,7 @@ tcp.port == 22
 
 ### Connection pattern — the brute force signature
 
-Five TCP conversations to port 22 from the same source IP within milliseconds of each other:
+Five TCP conversations to port 22 from the same source IP within milliseconds of each other. Hydra ran with `-t 4` (4 parallel threads) — each connection attempts multiple passwords simultaneously, so `labuser` (entry 8 of 12) was found after approximately two parallel rounds:
 
 ```
 192.168.110.132:37932 ↔ 192.168.110.130:22   22 packets   0.078s
@@ -45,7 +45,7 @@ Five TCP conversations to port 22 from the same source IP within milliseconds of
 192.168.110.132:37972 ↔ 192.168.110.130:22   28 packets   3.585s
 ```
 
-Five separate SSH connections from the same IP in rapid succession. No legitimate user opens and closes SSH connections five times in a few seconds.
+Five connections covering a 12-entry wordlist is consistent with parallel threading — not a one-to-one connection-per-password relationship. No legitimate user opens and closes SSH connections five times in a few seconds regardless of thread count.
 
 ### Each connection lifecycle
 
@@ -83,10 +83,10 @@ Zero readable content. Credentials, commands, and responses are cryptographicall
 ---
 
 ## Attacker Perspective
-Hydra attempted each wordlist entry as a separate SSH connection. Tool found `labuser/labuser` after working through the list. SSH provided no information about individual authentication failures.
+Hydra ran 4 parallel threads against the 12-entry wordlist. The correct credential (`labuser` — entry 8) was found after approximately two parallel rounds. SSH provided no information about individual authentication failures — each failed attempt resulted in connection closure with no error detail returned.
 
 ## Defender Perspective
-Five complete SSH handshakes from 192.168.110.132 within seconds. `SSH-2.0-libssh_0.11.3` in each connection identifies the tool as Hydra. Even without seeing credentials: same source IP + multiple rapid SSH connections + `libssh` banner = high-confidence brute force alert. A threshold rule of 3+ SSH connections from one source within 10 seconds catches this.
+Five complete SSH handshakes from 192.168.110.132 within seconds. `SSH-2.0-libssh_0.11.3` in each connection identifies the tool as Hydra. Even without seeing credentials: same source IP + multiple rapid SSH connections + `libssh` banner = high-confidence brute force alert. A threshold rule of 3+ SSH connections from one source within 10 seconds catches this regardless of thread count.
 
 ---
 
@@ -102,6 +102,8 @@ Five complete SSH handshakes from 192.168.110.132 within seconds. `SSH-2.0-libss
 
 - Credentials are NOT visible — SSH encryption is effective at the packet level
 - Attack IS detectable — 5 rapid connections from one source is the behavioural fingerprint
+- Hydra ran with `-t 4` (4 parallel threads) — 5 connections covering 12 wordlist entries is consistent with parallel execution
+- `labuser` is entry 8 of 12 — found after approximately two parallel rounds
 - Hydra identified by `SSH-2.0-libssh_0.11.3` — not the OpenSSH client string a human uses
 - Encryption algorithm: chacha20-poly1305 — modern, secure cipher
 - Detection method: connection rate analysis, not content inspection
