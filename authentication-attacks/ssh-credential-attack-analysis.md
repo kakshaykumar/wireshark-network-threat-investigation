@@ -27,7 +27,7 @@ A brute-force credential attack was executed against the SSH service running on 
 hydra -l labuser -P wordlist-credentials.txt ssh://192.168.110.130 -t 4 -V
 ```
 
-**Wordlist used:** [`wordlist-credentials.txt`](wordlist-credentials.txt)
+**Wordlist used:** [`simulated-credential-wordlist.txt`](simulated-credential-wordlist.txt)
 
 ---
 
