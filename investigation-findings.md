@@ -165,19 +165,6 @@ A DNS query was sent directly to `8.8.8.8` (Google Public DNS) rather than the l
 
 ---
 
-## Informational
-
-### OS fingerprinting via ICMP TTL
-TTL 64 = Linux, TTL 128 = Windows — identifiable from ping responses without a dedicated OS scan.
-
-### SSH brute force detectable without credential visibility
-5 rapid connections from same source within seconds — behavioural pattern is unmistakable even though SSH encryption is effective.
-
-### NXDOMAIN pattern identified for DGA detection
-Single NXDOMAIN is normal. High-volume NXDOMAIN from one host = DGA malware indicator.
-
----
-
 ## Attack Path Reconstruction
 
 Using only information captured in this lab:
