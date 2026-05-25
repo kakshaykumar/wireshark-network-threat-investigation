@@ -52,12 +52,14 @@ Every HTTP GET request in the capture contains an `Authorization` header with a 
 | `YWRtaW46MTIzNDU2` | admin:123456 | 401 Unauthorized |
 | `YWRtaW46d2VsY29tZQ==` | admin:welcome | 401 Unauthorized |
 | `YWRtaW46bGV0bWVpbg==` | admin:letmein | 401 Unauthorized |
-| `YWRtaW46cGFzc3dvcmQxMjM=` | admin:password123 | 401 Unauthorized |
-| `YWRtaW46YWRtaW5wYXNzMTIz` | admin:adminpass123 | 401 Unauthorized |
-| `YWRtaW46dGVzdDEyMw==` | admin:test123 | 401 Unauthorized |
 | `YWRtaW46cXdlcnR5` | admin:qwerty | 401 Unauthorized |
 | `YWRtaW46bGFicGFzczEyMw==` | admin:labpass123 | 401 Unauthorized |
 | `YWRtaW46bGFidXNlcg==` | admin:labuser | 401 Unauthorized |
+| `YWRtaW46dGVzdDEyMw==` | admin:test123 | 401 Unauthorized |
+| `YWRtaW46cGFzc3dvcmQxMjM=` | admin:password123 | 401 Unauthorized |
+| `YWRtaW46YWRtaW5wYXNzMTIz` | admin:adminpass123 | 401 Unauthorized |
+| `YWRtaW46YWRtaW4xMjM` | admin:admin123 | 401 Unauthorized |
+
 
 The credential `admin:admin` — the first entry in the wordlist — returned HTTP 200 OK on the initial attempt. Wireshark automatically decodes the Base64 value and displays `Credentials: admin:admin` in the packet details panel without requiring any manual decoding.
 
