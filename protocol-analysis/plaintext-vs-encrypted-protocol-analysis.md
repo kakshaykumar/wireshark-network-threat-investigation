@@ -1,26 +1,58 @@
-# FTP vs SSH: Same Action, Opposite Security
+# Plaintext vs Encrypted Protocol Analysis
 
-## Objective
-Place FTP and SSH side by side to show how protocol choice determines whether a user's session is protected or exposed — using identical authentication actions captured on both protocols.
+## Overview
+
+This analysis places FTP and SSH side by side to demonstrate how protocol selection determines whether a user session is protected or exposed. Both protocols were used to authenticate the same account to the same host. The resulting captures illustrate a fundamental principle in network security: the action being performed matters far less than the protocol carrying it.
+
+**Capture files:**
+- FTP: [`ftp-session-credential-exposure.pcapng`](../pcap-files/authentication-attacks/ftp-session-credential-exposure.pcapng)
+- SSH: [`ssh-encrypted-session.pcapng`](../pcap-files/protocol-analysis/ssh-encrypted-session.pcapng)
 
 ---
 
-## Lab Setup
+## Environment
+
 | Property | Value |
 |----------|-------|
-| Capture files | `ch2c-ftp-clean-login.pcapng` (FTP) · `ch3a-ssh-clean-login.pcapng` (SSH) |
-| Source | Kali Linux — 192.168.110.132 |
-| Target | Ubuntu 22.04 — 192.168.110.130 |
+| Source | 192.168.110.132 (Kali Linux) |
+| Target | 192.168.110.130 (Ubuntu — vsftpd 3.0.5 / OpenSSH 10.2p1) |
+| Interface captured | Ubuntu ens37 (defender perspective) |
 
 ---
 
-## Side-by-Side Comparison
+## Commands Used
 
-### FTP — everything visible
+```bash
+# FTP session — plaintext protocol
+ftp 192.168.110.130
+# Username: labuser / Password: labuser
+
+# SSH session — encrypted protocol
+ssh labuser@192.168.110.130
+# Commands run: whoami, ls, exit
+```
+
+---
+
+## Wireshark Filters
 
 ```
-Filter: ftp | Action: Follow TCP Stream
+# FTP session — plaintext
+ftp
+
+# SSH session — encrypted
+tcp.port == 22
 ```
+
+Apply Follow → TCP Stream on any packet from either session for the clearest comparison.
+
+---
+
+## Analysis
+
+### FTP — Full Session Exposed
+
+Applying the `ftp` filter and selecting Follow TCP Stream on the FTP capture produces the entire session as readable text:
 
 ```
 220 (vsFTPd 3.0.5)
@@ -29,72 +61,90 @@ USER labuser
 PASS labuser
 230 Login successful.
 SYST → 215 UNIX Type: L8
+FEAT → 211-Features: EPRT, PASV
 PWD  → 257 "/home/labuser" is the current directory
+LIST → [directory contents transferred]
 QUIT → 221 Goodbye.
 ```
 
-The entire session — banner, username, password, OS type, directory path — is readable plain text.
+Every element of the session — software version, username, password, OS type, home directory path, directory listing, and all post-login commands — is transmitted as plaintext. A passive observer on any network segment between the client and server recovers this in full without any decryption capability.
 
-### SSH — nothing visible
+### SSH — Session Content Not Recoverable
 
-```
-Filter: tcp.port == 22 | Action: Follow TCP Stream
-```
+Applying the `tcp.port == 22` filter and selecting Follow TCP Stream on the SSH capture produces:
 
 ```
-[binary noise]
-[binary noise]
+[binary noise — encrypted content]
+[binary noise — encrypted content]
 [binary noise — encrypted content]
 ```
 
-The Follow TCP Stream window shows only encrypted binary data. No username, no password, no commands, no responses.
+The stream window displays only ciphertext. Protocol metadata — connection timing, packet sizes, source and destination IPs — is observable, but the username, password, commands issued, and all server responses are cryptographically protected.
 
-### Protocol comparison
+The encryption in use across this session:
+
+```
+SSH Version 2 (encryption: chacha20-poly1305@openssh.com mac:<implicit>)
+Encrypted Packet: [hex — no readable content]
+MAC: [message authentication code]
+```
+
+### Comparison
 
 | Property | FTP | SSH |
 |----------|-----|-----|
 | Encryption | None | chacha20-poly1305@openssh.com |
-| Credential visibility | Plaintext in packet list | Not visible after handshake |
-| Command visibility | Every command readable | Encrypted |
-| Response visibility | Every response readable | Encrypted |
-| Version exposed in banner | vsftpd 3.0.5 | OpenSSH 10.2p1 |
+| Username visible | Yes — `USER labuser` in packet list | No |
+| Password visible | Yes — `PASS labuser` in packet list | No |
+| Commands visible | Yes — every command readable | No |
+| Server responses visible | Yes — every response readable | No |
+| OS type disclosed | Yes — `215 UNIX Type: L8` | No |
+| Home directory disclosed | Yes — `257 "/home/labuser"` | No |
+| Software version disclosed | Yes — `220 (vsFTPd 3.0.5)` | Protocol banner only |
 | Session reconstructible | Completely | Connection metadata only |
 
 ---
 
-## Screenshots
+## Evidence
 
-**FTP stream: complete credentials and session in readable text**
+**Figure 1 — FTP Follow TCP Stream: complete session in readable plaintext**
 
-![FTP plaintext stream](screenshots/ftp-stream3a.png)
+*USER labuser, PASS labuser, 230 Login successful, SYST, PWD, and full directory path — all visible without decryption.*
 
-**SSH stream: encrypted binary — no content visible**
+![FTP plaintext session reconstruction](screenshots/ftp-plaintext-session-reconstruction.png)
 
-![SSH encrypted stream](screenshots/ssh-stream.png)
+**Figure 2 — SSH Follow TCP Stream: encrypted binary — no session content recoverable**
+
+*Same action (authenticated remote session), zero credential or command visibility.*
+
+![SSH encrypted session no credential exposure](screenshots/ssh-encrypted-session-no-credential-exposure.png)
 
 ---
 
-## Key Finding
+## Key Findings
 
-The same action — authenticating a user to a remote service — produces completely opposite network security outcomes depending on protocol choice. FTP exposes the full session to any observer on the network path. SSH provides complete confidentiality. Protocol selection is a security decision, not just a technical one.
+- **Same action, opposite outcomes** — authenticating to a remote service over FTP exposes the full session; over SSH it is fully protected
+- **FTP discloses beyond credentials** — OS type, home directory, supported features, and all post-login commands are exposed in addition to the username and password
+- **SSH encryption is effective** — chacha20-poly1305 provides confidentiality, integrity, and authenticity; no session content is recoverable from the capture
+- **Protocol selection is a security decision** — FTP and SSH both provide remote access and file transfer; the security difference between them is total
 
 ---
 
 ## MITRE ATT&CK
 
-| ID | Technique |
-|----|-----------|
-| T1040 | Network Sniffing |
+| ID | Technique | Tactic |
+|----|-----------|--------|
+| T1040 | Network Sniffing | Credential Access |
 
 ---
 
-## Defensive Recommendation
+## Recommendation
 
-Disable vsftpd and configure the OpenSSH SFTP subsystem:
+Replace vsftpd with the OpenSSH SFTP subsystem — identical file transfer functionality with complete session encryption, using the SSH service already running on port 22:
 
 ```bash
-# /etc/ssh/sshd_config
+# Add to /etc/ssh/sshd_config
 Subsystem sftp /usr/lib/openssh/sftp-server
 ```
 
-Encrypted file transfer using the SSH service already running — no additional software required.
+No additional software, no additional service, no additional attack surface.
