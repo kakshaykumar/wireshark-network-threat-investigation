@@ -24,7 +24,7 @@ A brute-force credential attack was executed against the FTP service on the targ
 ```bash
 # FTP brute force — verbose output, sequential attempts
 # Wordlist: wordlist-credentials.txt (12 entries)
-hydra -l labuser -P simulated-credential-wordlist.txt ssh://192.168.110.130
+hydra -l labuser -P simulated-credential-wordlist.txt ftp://192.168.110.130
 ```
 
 **Wordlist used:** [`simulated-credential-wordlist.txt`](simulated-credential-wordlist.txt)
