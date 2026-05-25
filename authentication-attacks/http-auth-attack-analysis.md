@@ -23,7 +23,7 @@ A brute-force credential attack was executed against an HTTP Basic Authenticatio
 
 ```bash
 # HTTP Basic Auth brute force — GET method
-# Wordlist: wordlist-credentials.txt (12 entries)
+# Wordlist: simulated-credential-wordlist.txt (12 entries)
 hydra -l admin -P simulated-credential-wordlist.txt http-get://192.168.110.130 -V
 ```
 
