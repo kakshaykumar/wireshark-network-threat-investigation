@@ -17,6 +17,8 @@ DNS traffic was captured and analysed across multiple query types to document no
 | External resolver | 8.8.8.8 (Google Public DNS) |
 | Interface captured | Ubuntu ens33 (NAT interface — internet-facing) |
 
+Note: 192.168.91.x addresses represent the VMware NAT interface used for outbound DNS traffic, distinct from the isolated 192.168.110.x internal lab segment.
+
 ---
 
 ## Commands Used
