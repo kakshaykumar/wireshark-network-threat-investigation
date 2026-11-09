@@ -169,4 +169,4 @@ Full mapping with evidence and IOCs: [mitre-attack-technique-mapping.md](mitre-a
 
 ---
 
-*Conducted: June 2026 · VMware Workstation · Controlled Host-only network*
+*Conducted: May to June 2026 · VMware Workstation · Controlled Host-only network*
